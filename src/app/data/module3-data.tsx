@@ -1,5 +1,103 @@
 import { CardContent } from '../components/SwipeCard';
 
+// Compreensão e Interpretação
+export const compreensaoInterpretacaoCards: CardContent[] = [
+  {
+    type: 'teoria',
+    title: 'Compreensão e Interpretação de Textos',
+    content: (
+      <div>
+        <p className="mb-4">
+          Compreender e interpretar um texto é apreender seu significado. Para isso, o leitor precisa observar informações explícitas, elementos implícitos, contexto de produção, objetivo comunicativo e características do gênero textual.
+        </p>
+        <p className="mb-4">
+          A interpretação nasce da relação entre o que está escrito, o que está sugerido e o conhecimento linguístico e extralinguístico do leitor.
+        </p>
+        <div className="rounded-xl border border-edtech-border bg-edtech-bg p-4">
+          <p className="font-semibold text-edtech-text">Ao interpretar, procure identificar:</p>
+          <ul className="mt-3 list-disc space-y-2 pl-6 text-sm text-edtech-muted">
+            <li>o gênero textual e sua finalidade;</li>
+            <li>o emissor, o destinatário e a situação de comunicação;</li>
+            <li>as mensagens explícitas e implícitas;</li>
+            <li>a relação entre texto verbal e elementos visuais;</li>
+            <li>o contexto histórico, social e cultural de circulação.</li>
+          </ul>
+        </div>
+      </div>
+    ),
+  },
+  {
+    type: 'exemplo',
+    title: 'Leitura de Textos Verbais e Não Verbais',
+    content: (
+      <div>
+        <p className="mb-4">
+          Em uma campanha pública, por exemplo, a interpretação depende do gênero, do público-alvo, das imagens, dos logotipos, dos verbos usados e da ideia que a peça deseja defender.
+        </p>
+        <p className="mb-4">
+          Se o texto diz “não conte com a sorte” em uma campanha de saúde, a leitura não deve ficar apenas na frase literal. É preciso relacionar a expressão ao objetivo da campanha: incentivar o cuidado, a prevenção e a busca por atendimento.
+        </p>
+        <div className="rounded-xl bg-edtech-sky/10 p-4">
+          <p className="font-semibold text-edtech-primary">Pergunta-guia</p>
+          <p className="mt-2 text-edtech-text">
+            Que ideia o texto quer fazer o leitor perceber, aceitar ou praticar?
+          </p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    type: 'teoria',
+    title: 'Textos Literários e Não Literários',
+    content: (
+      <div>
+        <p className="mb-4">
+          Textos não literários costumam ter uma função comunicativa mais direta, como informar, orientar, convencer ou explicar.
+        </p>
+        <p className="mb-4">
+          Textos literários exploram plurissignificação, linguagem conotativa e figuras de linguagem. Por isso, podem permitir mais de uma leitura, desde que a interpretação seja sustentada por elementos do próprio texto.
+        </p>
+        <p>
+          Em um poema, uma palavra como “fogo” pode indicar paixão, intensidade, dor ou transformação. O sentido precisa ser construído com base no contexto e nos recursos expressivos usados.
+        </p>
+      </div>
+    ),
+  },
+  {
+    type: 'exercicio',
+    title: 'Estratégia de Interpretação',
+    question: 'Ao interpretar um anúncio com texto verbal, imagem e logotipo institucional, qual atitude é mais adequada?',
+    options: [
+      'Analisar apenas a frase principal, ignorando imagens e contexto.',
+      'Observar gênero, público-alvo, linguagem verbal, elementos visuais e objetivo comunicativo.',
+      'Considerar somente a opinião pessoal sobre o tema.',
+      'Ler rapidamente e escolher a primeira alternativa que pareça familiar.',
+    ],
+    correctAnswer: 1,
+    content: 'A alternativa B está correta. A interpretação exige relacionar gênero, finalidade, contexto, linguagem verbal e recursos visuais.',
+  },
+  {
+    type: 'feedback',
+    title: 'Resumo - Compreensão e Interpretação',
+    content: (
+      <div>
+        <p className="mb-4">
+          ✅ <strong>Interpretar é relacionar pistas.</strong>
+        </p>
+        <p className="mb-4">
+          Leia o texto, observe o gênero, identifique o objetivo, separe informações explícitas e implícitas e use o contexto para justificar sua leitura.
+        </p>
+        <div className="rounded-xl bg-edtech-mint/20 p-4">
+          <p className="font-semibold text-edtech-text">Dica</p>
+          <p className="mt-2 text-edtech-text">
+            Em questões, leia também o enunciado com atenção: ele costuma indicar exatamente o que você precisa buscar no texto.
+          </p>
+        </div>
+      </div>
+    ),
+  },
+];
+
 // Ideia Central
 export const ideiaCentralCards: CardContent[] = [
   {

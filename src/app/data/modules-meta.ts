@@ -1,6 +1,6 @@
 export const MODULE_TOPIC_COUNTS = {
-  module1: 5,
-  module2: 24,
-  module3: 5,
+  module1: 6,
+  module2: 26,
+  module3: 6,
   module4: 5,
 };

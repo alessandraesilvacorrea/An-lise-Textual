@@ -2,8 +2,10 @@ import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter, Navigate, useLocation } from "react-router";
 import Login from "./pages/Login";
 import { useAuth } from "./auth";
+import { COURSE_MODULES, getModuleAccess, type ModuleKey } from "./data/module-catalog";
 
 const Home = lazy(() => import("./pages/Home"));
+const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 const Module1 = lazy(() => import("./pages/Module1"));
 const Module2 = lazy(() => import("./pages/Module2"));
 const Module3 = lazy(() => import("./pages/Module3"));
@@ -36,6 +38,28 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function RequireModuleAccess({ moduleKey, children }: { moduleKey: ModuleKey; children: ReactNode }) {
+  const { user } = useAuth();
+  const access = getModuleAccess(user?.progress, moduleKey);
+
+  if (access.isLocked) {
+    const lockedModule = COURSE_MODULES.find((module) => module.key === moduleKey);
+
+    return (
+      <Navigate
+        to="/home"
+        state={{
+          lockedModuleTitle: lockedModule?.title,
+          requiredModuleTitle: access.requiredModule?.title,
+        }}
+        replace
+      />
+    );
+  }
+
+  return <>{children}</>;
+}
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -56,11 +80,23 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: "/perfil",
+    element: (
+      <LazyPage>
+        <RequireAuth>
+          <StudentDashboard />
+        </RequireAuth>
+      </LazyPage>
+    ),
+  },
+  {
     path: "/modulo-1",
     element: (
       <LazyPage>
         <RequireAuth>
-          <Module1 />
+          <RequireModuleAccess moduleKey="module1">
+            <Module1 />
+          </RequireModuleAccess>
         </RequireAuth>
       </LazyPage>
     ),
@@ -70,7 +106,9 @@ export const router = createBrowserRouter([
     element: (
       <LazyPage>
         <RequireAuth>
-          <Module2 />
+          <RequireModuleAccess moduleKey="module2">
+            <Module2 />
+          </RequireModuleAccess>
         </RequireAuth>
       </LazyPage>
     ),
@@ -80,7 +118,9 @@ export const router = createBrowserRouter([
     element: (
       <LazyPage>
         <RequireAuth>
-          <Module3 />
+          <RequireModuleAccess moduleKey="module3">
+            <Module3 />
+          </RequireModuleAccess>
         </RequireAuth>
       </LazyPage>
     ),
@@ -90,7 +130,9 @@ export const router = createBrowserRouter([
     element: (
       <LazyPage>
         <RequireAuth>
-          <Module4 />
+          <RequireModuleAccess moduleKey="module4">
+            <Module4 />
+          </RequireModuleAccess>
         </RequireAuth>
       </LazyPage>
     ),

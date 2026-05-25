@@ -1,95 +1,20 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import {
-  AlertTriangle,
-  ArrowRight,
-  BarChart3,
-  BookOpen,
-  CheckCircle2,
-  Clock3,
-  LogOut,
-  MessageSquare,
-  Search,
-} from "lucide-react";
+import { useLocation, useNavigate } from "react-router";
+import { ArrowRight, BookOpen, CheckCircle2, LockKeyhole, LogOut, UserCircle } from "lucide-react";
 import { useAuth } from "../auth";
-import { MODULE_TOPIC_COUNTS } from "../data/modules-meta";
+import { COURSE_MODULES, getModuleAccess, getModuleProgress, getNextAvailableModule } from "../data/module-catalog";
 
-type ModuleKey = keyof typeof MODULE_TOPIC_COUNTS;
-
-const modules = [
-  {
-    key: "module1",
-    number: 1,
-    title: "Tipos e Gêneros Textuais",
-    description: "Compare textos narrativos, argumentativos, científicos, jornalísticos, literários e instrucionais.",
-    icon: BookOpen,
-    accentClass: "bg-category-narrativo",
-    softClass: "bg-category-narrativo/20 text-edtech-primary",
-    borderClass: "border-category-narrativo/50",
-    path: "/modulo-1",
-  },
-  {
-    key: "module2",
-    number: 2,
-    title: "Figuras de Linguagem",
-    description: "Reconheça recursos expressivos e efeitos de sentido em textos literários e cotidianos.",
-    icon: MessageSquare,
-    accentClass: "bg-category-literario",
-    softClass: "bg-category-literario/20 text-edtech-text",
-    borderClass: "border-category-literario/50",
-    path: "/modulo-2",
-  },
-  {
-    key: "module3",
-    number: 3,
-    title: "Interpretação Textual",
-    description: "Pratique leitura crítica, inferência, contexto, argumentação e intenção do autor.",
-    icon: Search,
-    accentClass: "bg-category-cientifico",
-    softClass: "bg-category-cientifico/20 text-edtech-text",
-    borderClass: "border-category-cientifico/50",
-    path: "/modulo-3",
-  },
-  {
-    key: "module4",
-    number: 4,
-    title: "Identificação de Fake News",
-    description: "Verifique fontes, datas, imagens manipuladas e sinais de desinformação jornalística.",
-    icon: AlertTriangle,
-    accentClass: "bg-category-jornalistico",
-    softClass: "bg-category-jornalistico/20 text-edtech-primary",
-    borderClass: "border-category-jornalistico/50",
-    path: "/modulo-4",
-  },
-] satisfies Array<{
-  key: ModuleKey;
-  number: number;
-  title: string;
-  description: string;
-  icon: typeof BookOpen;
-  accentClass: string;
-  softClass: string;
-  borderClass: string;
-  path: string;
-}>;
-
-function getModuleProgress(progress: string[] | undefined, total: number) {
-  const completed = progress?.length ?? 0;
-  return {
-    completed,
-    percent: total ? Math.round((completed / total) * 100) : 0,
-    isComplete: completed === total && total > 0,
-  };
-}
+type LockedRouteState = {
+  lockedModuleTitle?: string;
+  requiredModuleTitle?: string;
+};
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user, signOut, updateLastVisited } = useAuth();
+  const location = useLocation();
+  const { user, signOut } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  useEffect(() => {
-    void updateLastVisited("/home");
-  }, [updateLastVisited]);
+  const lockedRouteState = location.state as LockedRouteState | null;
 
   useEffect(() => {
     if (isLoggingOut && !user) {
@@ -112,14 +37,7 @@ export default function Home() {
   };
 
   const firstName = user?.displayName ?? user?.email.split("@")[0] ?? "Aluno";
-  const totalTopics = modules.reduce((sum, module) => sum + MODULE_TOPIC_COUNTS[module.key], 0);
-  const totalSavedTopics = modules.reduce((sum, module) => sum + (user?.progress[module.key]?.length ?? 0), 0);
-  const modulesStarted = modules.filter((module) => (user?.progress[module.key]?.length ?? 0) > 0).length;
-  const coursePercent = totalTopics ? Math.round((totalSavedTopics / totalTopics) * 100) : 0;
-  const nextModule = modules.find((module) => {
-    const progress = getModuleProgress(user?.progress[module.key], MODULE_TOPIC_COUNTS[module.key]);
-    return !progress.isComplete;
-  });
+  const nextModule = getNextAvailableModule(user?.progress);
 
   return (
     <div className="min-h-screen bg-edtech-bg text-edtech-text">
@@ -138,34 +56,68 @@ export default function Home() {
             </div>
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-edtech-muted">TextLab</p>
-              <p className="text-base font-semibold text-edtech-text">Painel de estudos</p>
+              <p className="text-base font-semibold text-edtech-text">Trilha de estudos</p>
             </div>
           </button>
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            aria-busy={isLoggingOut}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-edtech-border bg-white px-4 py-2 text-sm font-semibold text-edtech-text shadow-sm transition hover:border-edtech-sky hover:bg-edtech-sky/10 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <LogOut className="h-4 w-4" aria-hidden="true" />
-            {isLoggingOut ? "Saindo..." : "Sair"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/perfil")}
+              aria-label="Abrir dashboard do aluno"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-edtech-border bg-white px-4 py-2 text-sm font-semibold text-edtech-text shadow-sm transition hover:border-edtech-sky hover:bg-edtech-sky/10"
+            >
+              <UserCircle className="h-4 w-4" aria-hidden="true" />
+              Perfil
+            </button>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              aria-busy={isLoggingOut}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-edtech-border bg-white px-4 py-2 text-sm font-semibold text-edtech-text shadow-sm transition hover:border-edtech-sky hover:bg-edtech-sky/10 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <LogOut className="h-4 w-4" aria-hidden="true" />
+              {isLoggingOut ? "Saindo..." : "Sair"}
+            </button>
+          </div>
         </div>
       </header>
 
       <main id="main-content" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="grid gap-6 lg:grid-cols-[1fr_360px]" aria-labelledby="dashboard-title">
-          <div className="rounded-2xl border border-edtech-border bg-edtech-surface p-6 shadow-[0_16px_38px_rgba(31,41,55,0.06)]">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-edtech-muted">Área do aluno</p>
-            <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <h1 id="dashboard-title" className="text-3xl font-semibold leading-tight text-edtech-text md:text-4xl">Olá, {firstName}</h1>
-                <p className="mt-3 max-w-2xl text-base leading-7 text-edtech-muted">
-                  Acompanhe seu avanço, escolha o próximo módulo e retome o conteúdo salvo na sua conta.
-                </p>
-              </div>
+        {lockedRouteState?.lockedModuleTitle && lockedRouteState.requiredModuleTitle ? (
+          <div className="mb-6 rounded-2xl border border-edtech-amber/50 bg-edtech-amber/15 p-4 text-sm leading-6 text-edtech-text" role="status">
+            <div className="flex gap-3">
+              <LockKeyhole className="mt-0.5 h-5 w-5 shrink-0 text-edtech-primary" aria-hidden="true" />
+              <p>
+                <strong>{lockedRouteState.lockedModuleTitle}</strong> ainda está bloqueado. Conclua <strong>{lockedRouteState.requiredModuleTitle}</strong> para liberar o próximo módulo.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
+        <section className="rounded-2xl border border-edtech-border bg-edtech-surface p-6 shadow-[0_16px_38px_rgba(31,41,55,0.06)]" aria-labelledby="home-title">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-edtech-muted">Olá, {firstName}</p>
+          <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h1 id="home-title" className="text-3xl font-semibold leading-tight text-edtech-text md:text-4xl">
+                Continue sua trilha textual
+              </h1>
+              <p className="mt-3 max-w-2xl text-base leading-7 text-edtech-muted">
+                Os módulos agora seguem uma sequência: conclua cada etapa para desbloquear a próxima.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => navigate("/perfil")}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-edtech-border bg-white px-4 py-3 text-sm font-semibold text-edtech-text shadow-sm transition hover:border-edtech-sky hover:bg-edtech-sky/10"
+              >
+                Ver dashboard
+                <UserCircle className="h-4 w-4" aria-hidden="true" />
+              </button>
 
               {nextModule ? (
                 <button
@@ -180,161 +132,90 @@ export default function Home() {
               ) : null}
             </div>
           </div>
-
-          <div className="rounded-2xl border border-edtech-primary/20 bg-gradient-to-br from-edtech-primary to-edtech-sky p-6 text-white shadow-[0_18px_46px_rgba(59,76,202,0.2)]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/70">Progresso geral</p>
-                <p className="mt-3 text-4xl font-semibold">{coursePercent}%</p>
-              </div>
-              <BarChart3 className="h-9 w-9 text-edtech-mint" aria-hidden="true" />
-            </div>
-            <div
-              className="mt-6 h-2 rounded-full bg-white/20"
-              role="progressbar"
-              aria-label="Progresso geral do curso"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={coursePercent}
-            >
-              <div className="h-2 rounded-full bg-edtech-mint" style={{ width: `${coursePercent}%` }} />
-            </div>
-            <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-white/70">Módulos iniciados</p>
-                <p className="mt-1 text-lg font-semibold">{modulesStarted}/4</p>
-              </div>
-              <div>
-                <p className="text-white/70">Tópicos concluídos</p>
-                <p className="mt-1 text-lg font-semibold">
-                  {totalSavedTopics}/{totalTopics}
-                </p>
-              </div>
-            </div>
-          </div>
         </section>
 
-        <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]" aria-labelledby="modules-title">
-          <div>
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <h2 id="modules-title" className="text-xl font-semibold text-edtech-text">Módulos</h2>
-              <p className="text-sm text-edtech-muted">{modules.length} módulos disponíveis</p>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              {modules.map((module) => {
-                const Icon = module.icon;
-                const total = MODULE_TOPIC_COUNTS[module.key];
-                const progress = getModuleProgress(user?.progress[module.key], total);
-
-                return (
-                  <button
-                    type="button"
-                    key={module.key}
-                    onClick={() => navigate(module.path)}
-                    aria-describedby={`${module.key}-description ${module.key}-progress-label`}
-                    aria-label={`${progress.completed ? "Retomar" : "Começar"} ${module.title}`}
-                    className={`group rounded-2xl border ${module.borderClass} bg-edtech-surface p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-edtech-sky hover:shadow-[0_18px_38px_rgba(31,41,55,0.08)]`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${module.softClass}`}>
-                        <Icon className="h-5 w-5" aria-hidden="true" />
-                      </div>
-                      {progress.isComplete ? (
-                        <div className="inline-flex items-center gap-1 rounded-full bg-edtech-mint/20 px-2.5 py-1 text-xs font-semibold text-edtech-text">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-edtech-mint" aria-hidden="true" />
-                          Completo
-                        </div>
-                      ) : (
-                        <span className="rounded-full bg-edtech-bg px-2.5 py-1 text-xs font-semibold text-edtech-muted">
-                          Módulo {module.number}
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="mt-5 text-lg font-semibold text-edtech-text">{module.title}</h3>
-                    <p id={`${module.key}-description`} className="mt-2 min-h-[72px] text-sm leading-6 text-edtech-muted">{module.description}</p>
-
-                    <div className="mt-5">
-                      <div id={`${module.key}-progress-label`} className="mb-2 flex items-center justify-between text-sm">
-                        <span className="font-medium text-edtech-text">Progresso</span>
-                        <span className="text-edtech-muted">
-                          {progress.completed}/{total}
-                        </span>
-                      </div>
-                      <div
-                        className="h-2 rounded-full bg-edtech-bg"
-                        role="progressbar"
-                        aria-label={`Progresso em ${module.title}`}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-valuenow={progress.percent}
-                      >
-                        <div className={`h-2 rounded-full ${module.accentClass}`} style={{ width: `${progress.percent}%` }} />
-                      </div>
-                    </div>
-
-                    <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-edtech-primary transition group-hover:gap-3 group-hover:text-edtech-sky">
-                      {progress.completed ? "Retomar" : "Começar"}
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+        <section className="mt-6" aria-labelledby="modules-title">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 id="modules-title" className="text-xl font-semibold text-edtech-text">Módulos</h2>
+            <p className="text-sm text-edtech-muted">{COURSE_MODULES.length} módulos na trilha</p>
           </div>
 
-          <aside className="space-y-6" aria-label="Informações complementares">
-            <section className="rounded-2xl border border-edtech-border bg-edtech-surface p-5 shadow-sm">
-              <div className="flex items-center gap-3">
-                <Clock3 className="h-5 w-5 text-edtech-primary" aria-hidden="true" />
-                <h2 className="text-base font-semibold text-edtech-text">Atividade recente</h2>
-              </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {COURSE_MODULES.map((module) => {
+              const Icon = module.icon;
+              const progress = getModuleProgress(user?.progress, module.key);
+              const access = getModuleAccess(user?.progress, module.key);
+              const lockHintId = `${module.key}-lock-hint`;
+              const descriptionId = `${module.key}-description`;
+              const progressLabelId = `${module.key}-progress-label`;
+              const statusLabel = access.isLocked ? "Bloqueado" : progress.isComplete ? "Completo" : "Disponível";
 
-              {user?.lastVisited ? (
+              return (
                 <button
                   type="button"
-                  onClick={() => navigate(user.lastVisited ?? "/home")}
-                  aria-label={`Ir para a última página acessada: ${user.lastVisited}`}
-                  className="mt-5 flex w-full items-center justify-between gap-4 border-t border-edtech-border pt-4 text-left text-sm"
+                  key={module.key}
+                  onClick={() => navigate(module.path)}
+                  disabled={access.isLocked}
+                  aria-disabled={access.isLocked}
+                  aria-describedby={`${descriptionId} ${progressLabelId}${access.isLocked ? ` ${lockHintId}` : ""}`}
+                  aria-label={`${module.title}. ${statusLabel}. ${access.isLocked && access.requiredModule ? `Conclua ${access.requiredModule.title} para desbloquear.` : ""}`}
+                  className={`group rounded-2xl border ${access.isLocked ? "border-edtech-border" : module.borderClass} bg-edtech-surface p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-edtech-sky hover:shadow-[0_18px_38px_rgba(31,41,55,0.08)] disabled:cursor-not-allowed disabled:opacity-75 disabled:hover:translate-y-0 disabled:hover:border-edtech-border disabled:hover:shadow-sm`}
                 >
-                  <span>
-                    <span className="block font-medium text-edtech-text">Última página acessada</span>
-                    <span className="mt-1 block text-edtech-muted">{user.lastVisited}</span>
-                  </span>
-                  <ArrowRight className="h-4 w-4 text-edtech-primary" aria-hidden="true" />
-                </button>
-              ) : (
-                <p className="mt-5 border-t border-edtech-border pt-4 text-sm leading-6 text-edtech-muted">
-                  Seu histórico aparecerá aqui depois do primeiro módulo acessado.
-                </p>
-              )}
-            </section>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${access.isLocked ? "bg-edtech-bg text-edtech-muted" : module.softClass}`}>
+                      {access.isLocked ? <LockKeyhole className="h-5 w-5" aria-hidden="true" /> : <Icon className="h-5 w-5" aria-hidden="true" />}
+                    </div>
 
-            <section className="rounded-2xl border border-edtech-border bg-edtech-surface p-5 shadow-sm">
-              <h2 className="text-base font-semibold text-edtech-text">Resumo por módulo</h2>
-              <div className="mt-4 divide-y divide-edtech-border">
-                {modules.map((module) => {
-                  const total = MODULE_TOPIC_COUNTS[module.key];
-                  const progress = getModuleProgress(user?.progress[module.key], total);
-
-                  return (
-                    <div key={module.key} className="flex items-center justify-between gap-3 py-3">
-                      <div>
-                        <p className="text-sm font-medium text-edtech-text">Módulo {module.number}</p>
-                        <p className="text-xs text-edtech-muted">{module.title}</p>
+                    {progress.isComplete ? (
+                      <div className="inline-flex items-center gap-1 rounded-full bg-edtech-mint/20 px-2.5 py-1 text-xs font-semibold text-edtech-text">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-edtech-mint" aria-hidden="true" />
+                        Completo
                       </div>
-                      <span className="text-sm font-semibold text-edtech-primary">
-                        {progress.completed}/{total}
+                    ) : access.isLocked ? (
+                      <span className="rounded-full bg-edtech-bg px-2.5 py-1 text-xs font-semibold text-edtech-muted">Bloqueado</span>
+                    ) : (
+                      <span className="rounded-full bg-edtech-bg px-2.5 py-1 text-xs font-semibold text-edtech-muted">
+                        Módulo {module.number}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="mt-5 text-lg font-semibold text-edtech-text">{module.title}</h3>
+                  <p id={descriptionId} className="mt-2 min-h-[72px] text-sm leading-6 text-edtech-muted">{module.description}</p>
+
+                  {access.isLocked && access.requiredModule ? (
+                    <p id={lockHintId} className="mt-4 rounded-xl bg-edtech-amber/15 p-3 text-sm font-medium leading-6 text-edtech-text">
+                      Conclua {access.requiredModule.title} para desbloquear.
+                    </p>
+                  ) : null}
+
+                  <div className="mt-5">
+                    <div id={progressLabelId} className="mb-2 flex items-center justify-between text-sm">
+                      <span className="font-medium text-edtech-text">Progresso</span>
+                      <span className="text-edtech-muted">
+                        {progress.completed}/{progress.total}
                       </span>
                     </div>
-                  );
-                })}
-              </div>
-            </section>
+                    <div
+                      className="h-2 rounded-full bg-edtech-bg"
+                      role="progressbar"
+                      aria-label={`Progresso em ${module.title}`}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={progress.percent}
+                    >
+                      <div className={`h-2 rounded-full ${access.isLocked ? "bg-edtech-muted/40" : module.accentClass}`} style={{ width: `${progress.percent}%` }} />
+                    </div>
+                  </div>
 
-            <p className="text-center text-xs text-edtech-muted">UEA/EST · Oficina de Desenvolvimento de Software Educacional</p>
-          </aside>
+                  <div className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold transition ${access.isLocked ? "text-edtech-muted" : "text-edtech-primary group-hover:gap-3 group-hover:text-edtech-sky"}`}>
+                    {access.isLocked ? "Bloqueado" : progress.completed ? "Retomar" : "Começar"}
+                    {access.isLocked ? <LockKeyhole className="h-4 w-4" aria-hidden="true" /> : <ArrowRight className="h-4 w-4" aria-hidden="true" />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </section>
       </main>
     </div>

@@ -1,6 +1,7 @@
 import { ModuleTopicsPage, type ModuleTopic } from "../components/ModuleTopicsPage";
 import {
   argumentacaoCards,
+  compreensaoInterpretacaoCards,
   contextoCards,
   ideiaCentralCards,
   inferenciaCards,
@@ -8,6 +9,14 @@ import {
 } from "../data/module3-data";
 
 const topics = [
+  {
+    id: "compreensao-interpretacao",
+    name: "Compreensão e Interpretação",
+    icon: "🧭",
+    cards: compreensaoInterpretacaoCards,
+    softClass: "bg-edtech-sky/20 text-edtech-primary",
+    borderClass: "border-edtech-sky/50",
+  },
   {
     id: "ideia-central",
     name: "Ideia Central",

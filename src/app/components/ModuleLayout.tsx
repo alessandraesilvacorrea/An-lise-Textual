@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { useNavigate } from "react-router";
-import { ArrowLeft, BookOpen, Home } from "lucide-react";
+import { ArrowLeft, BookOpen, Home, UserCircle } from "lucide-react";
 
 interface ModuleLayoutProps {
   moduleNumber: number;
@@ -49,6 +49,16 @@ export function ModuleLayout({ moduleNumber, moduleTitle, moduleColor, children 
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                 Voltar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate("/perfil")}
+                aria-label="Abrir dashboard do aluno"
+                className="inline-flex items-center gap-2 rounded-xl border border-edtech-border bg-white px-4 py-2 text-sm font-semibold text-edtech-text shadow-sm transition hover:border-edtech-sky hover:bg-edtech-sky/10"
+              >
+                <UserCircle className="h-4 w-4" aria-hidden="true" />
+                Perfil
               </button>
 
               <button

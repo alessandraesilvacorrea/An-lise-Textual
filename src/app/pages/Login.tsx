@@ -2,6 +2,10 @@ import { FormEvent, useEffect, useId, useState } from "react";
 import { useNavigate } from "react-router";
 import { BarChart3, BookOpenCheck, Lock, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { useAuth } from "../auth";
+import { MODULE_TOPIC_COUNTS } from "../data/modules-meta";
+
+const totalModules = Object.keys(MODULE_TOPIC_COUNTS).length;
+const totalTopics = Object.values(MODULE_TOPIC_COUNTS).reduce((sum, count) => sum + count, 0);
 
 export default function Login() {
   const navigate = useNavigate();
@@ -83,31 +87,31 @@ export default function Login() {
           </div>
 
           <div className="mt-12 max-w-2xl">
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/65">Área do aluno</p>
+            <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/65">Trilha guiada de leitura</p>
             <h2 id="login-hero-title" className="mt-3 text-4xl font-semibold leading-tight tracking-normal md:text-5xl">
-              Aprenda a reconhecer textos com clareza.
+              Entenda textos com método, prática e clareza.
             </h2>
             <p className="mt-5 max-w-xl text-base leading-7 text-white/80">
-              Uma plataforma educacional moderna para diferenciar tipos narrativos, argumentativos, científicos,
-              jornalísticos, literários e instrucionais com progresso salvo.
+              O TextLab organiza o estudo de tipos textuais, gêneros, figuras de linguagem, interpretação e verificação
+              de informações em uma jornada progressiva, feita para leitura atenta e aprendizagem consistente.
             </p>
           </div>
 
           <div className="mt-10 grid gap-3 sm:grid-cols-3" aria-label="Resumo da plataforma">
             <div className="rounded-2xl border border-white/20 bg-white/10 p-4 shadow-sm backdrop-blur">
               <BookOpenCheck className="h-5 w-5 text-white" aria-hidden="true" />
-              <p className="mt-3 text-2xl font-semibold">4</p>
+              <p className="mt-3 text-2xl font-semibold">{totalModules}</p>
               <p className="text-sm text-white/72">módulos</p>
             </div>
             <div className="rounded-2xl border border-white/20 bg-white/10 p-4 shadow-sm backdrop-blur">
               <BarChart3 className="h-5 w-5 text-edtech-mint" aria-hidden="true" />
-              <p className="mt-3 text-2xl font-semibold">39</p>
+              <p className="mt-3 text-2xl font-semibold">{totalTopics}</p>
               <p className="text-sm text-white/72">tópicos</p>
             </div>
             <div className="rounded-2xl border border-white/20 bg-white/10 p-4 shadow-sm backdrop-blur">
               <ShieldCheck className="h-5 w-5 text-edtech-amber" aria-hidden="true" />
-              <p className="mt-3 text-2xl font-semibold">100%</p>
-              <p className="text-sm text-white/72">salvo</p>
+              <p className="mt-3 text-2xl font-semibold">Perfil</p>
+              <p className="text-sm text-white/72">com progresso salvo</p>
             </div>
           </div>
         </section>
@@ -115,11 +119,16 @@ export default function Login() {
         <section className="rounded-2xl border border-edtech-border bg-edtech-surface p-6 shadow-[0_18px_45px_rgba(31,41,55,0.08)] md:p-8">
           <div className="mb-7">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-edtech-muted">
-              {createMode ? "Criar conta" : "Entrar"}
+              {createMode ? "Novo acesso" : "Acesso ao sistema"}
             </p>
             <h2 id={formTitleId} className="mt-2 text-2xl font-semibold text-edtech-text">
-              {createMode ? "Comece no TextLab" : "Acesse sua conta"}
+              {createMode ? "Crie sua conta no TextLab" : "Entre para continuar sua trilha"}
             </h2>
+            <p className="mt-3 text-sm leading-6 text-edtech-muted">
+              {createMode
+                ? "Salve seu progresso desde o primeiro módulo e acompanhe sua evolução no dashboard."
+                : "Retome seus módulos, avance na sequência correta e acompanhe seu progresso de leitura."}
+            </p>
           </div>
 
           <form
@@ -233,7 +242,7 @@ export default function Login() {
           ) : null}
 
           <p className="mt-7 border-t border-edtech-border pt-5 text-xs leading-5 text-edtech-muted">
-            Sessão protegida e progresso sincronizado com sua conta.
+            Seu acesso mantém o histórico de estudos e sincroniza o progresso da trilha textual.
           </p>
         </section>
       </main>

@@ -5,9 +5,18 @@ import {
   expositivoCards,
   injuntivoCards,
   narrativoCards,
+  tiposGenerosCards,
 } from "../data/module1-data";
 
 const topics = [
+  {
+    id: "tipos-generos",
+    name: "Tipos x Gêneros",
+    icon: "🧭",
+    cards: tiposGenerosCards,
+    softClass: "bg-edtech-sky/20 text-edtech-primary",
+    borderClass: "border-edtech-sky/50",
+  },
   {
     id: "narrativo",
     name: "Narrativo",
@@ -66,7 +75,7 @@ export default function Module1() {
         textClass: "text-edtech-primary hover:text-edtech-sky",
         progressClass: "bg-edtech-primary",
       }}
-      getTopicHeading={(topic) => `Texto ${topic.name}`}
+      getTopicHeading={(topic) => topic.id === "tipos-generos" ? topic.name : `Texto ${topic.name}`}
     />
   );
 }

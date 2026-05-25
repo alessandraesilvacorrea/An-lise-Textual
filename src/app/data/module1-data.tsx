@@ -1,5 +1,128 @@
 import { CardContent } from '../components/SwipeCard';
 
+// Tipos x Gêneros Textuais
+export const tiposGenerosCards: CardContent[] = [
+  {
+    type: 'teoria',
+    title: 'Tipos e Gêneros Textuais',
+    content: (
+      <div>
+        <p className="mb-4">
+          Os tipos textuais são estruturas linguísticas que organizam a construção dos textos. Eles indicam como o texto funciona internamente: narrar, descrever, argumentar, expor informações ou orientar ações.
+        </p>
+        <p className="mb-4">
+          Já os gêneros textuais são formas sociais de comunicação usadas no cotidiano, cada uma com estrutura, finalidade e contexto próprios.
+        </p>
+        <div className="rounded-xl border border-edtech-border bg-edtech-bg p-4">
+          <p className="font-semibold text-edtech-text">Os cinco tipos textuais principais:</p>
+          <ul className="mt-3 list-disc space-y-2 pl-6 text-sm text-edtech-muted">
+            <li><strong>Narrativo:</strong> relata fatos com personagens, tempo e espaço.</li>
+            <li><strong>Descritivo:</strong> apresenta características de pessoas, objetos, lugares ou sensações.</li>
+            <li><strong>Dissertativo/argumentativo:</strong> defende uma ideia com argumentos.</li>
+            <li><strong>Expositivo:</strong> informa, explica e conceitua de forma objetiva.</li>
+            <li><strong>Injuntivo/instrucional:</strong> orienta ações por meio de ordens, pedidos ou instruções.</li>
+          </ul>
+        </div>
+      </div>
+    ),
+  },
+  {
+    type: 'exemplo',
+    title: 'Gêneros em Situações Reais',
+    content: (
+      <div>
+        <p className="mb-4">
+          Um gênero textual nasce de uma necessidade comunicativa. Por isso, existem muitos gêneros diferentes, como notícia, reportagem, artigo de opinião, crônica, carta, diário, bula, receita, manual, anúncio publicitário, propaganda, e-mail, relatório, tirinha e texto didático.
+        </p>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl border border-edtech-border bg-white p-4">
+            <p className="font-semibold text-edtech-text">Receita</p>
+            <p className="mt-2 text-sm text-edtech-muted">Gênero composto principalmente pelo tipo injuntivo, porque orienta o leitor a fazer algo.</p>
+          </div>
+          <div className="rounded-xl border border-edtech-border bg-white p-4">
+            <p className="font-semibold text-edtech-text">Artigo de opinião</p>
+            <p className="mt-2 text-sm text-edtech-muted">Gênero com predomínio argumentativo, pois apresenta tese e defesa de um ponto de vista.</p>
+          </div>
+          <div className="rounded-xl border border-edtech-border bg-white p-4">
+            <p className="font-semibold text-edtech-text">Bula</p>
+            <p className="mt-2 text-sm text-edtech-muted">Gênero com explicações e orientações, unindo exposição e injunção.</p>
+          </div>
+          <div className="rounded-xl border border-edtech-border bg-white p-4">
+            <p className="font-semibold text-edtech-text">Romance</p>
+            <p className="mt-2 text-sm text-edtech-muted">Gênero literário que costuma misturar narração, descrição, exposição e diálogo.</p>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    type: 'teoria',
+    title: 'Como Reconhecer um Gênero Textual',
+    content: (
+      <div>
+        <p className="mb-4">
+          Para identificar um gênero, observe quatro elementos: o assunto tratado, a estrutura, o modo de linguagem e a finalidade comunicativa.
+        </p>
+        <ul className="list-disc space-y-2 pl-6">
+          <li><strong>Conteúdo:</strong> o assunto desenvolvido no texto.</li>
+          <li><strong>Composição:</strong> a forma como o texto é organizado.</li>
+          <li><strong>Estilo:</strong> o modo de dizer, incluindo linguagem, tom e recursos expressivos.</li>
+          <li><strong>Função comunicativa:</strong> o objetivo do texto na situação em que circula.</li>
+        </ul>
+        <p className="mt-4">
+          Um mesmo gênero pode combinar mais de um tipo textual. A diferença é que os tipos são limitados e estruturais; os gêneros são numerosos e dependem das práticas sociais.
+        </p>
+      </div>
+    ),
+  },
+  {
+    type: 'exercicio',
+    title: 'Tipos x Gêneros',
+    question: 'Qual alternativa diferencia corretamente tipo textual e gênero textual?',
+    options: [
+      'Tipo textual é sempre artístico; gênero textual é sempre científico.',
+      'Tipo textual é a estrutura linguística predominante; gênero textual é a forma social de comunicação.',
+      'Tipo textual e gênero textual são nomes diferentes para a mesma coisa.',
+      'Gêneros textuais são apenas narrativo, descritivo, dissertativo, expositivo e injuntivo.',
+    ],
+    correctAnswer: 1,
+    content: 'A alternativa B está correta. Tipos textuais indicam estruturas linguísticas; gêneros textuais indicam formas de comunicação usadas em situações sociais concretas.',
+  },
+  {
+    type: 'exercicio',
+    title: 'Identificando Gênero e Tipo',
+    question: 'Uma receita culinária normalmente pertence a qual gênero e apresenta predominância de qual tipo textual?',
+    options: [
+      'Gênero receita, com predominância injuntiva.',
+      'Gênero notícia, com predominância narrativa.',
+      'Gênero crônica, com predominância descritiva.',
+      'Gênero artigo de opinião, com predominância argumentativa.',
+    ],
+    correctAnswer: 0,
+    content: 'A receita é um gênero textual usado para orientar uma ação. Por isso, costuma ter predominância injuntiva, com verbos de comando e etapas de preparo.',
+  },
+  {
+    type: 'feedback',
+    title: 'Resumo - Tipos e Gêneros',
+    content: (
+      <div>
+        <p className="mb-4">
+          ✅ <strong>Você já tem a base para diferenciar os dois conceitos.</strong>
+        </p>
+        <p className="mb-4">
+          Tipos textuais são modos de organização interna. Gêneros textuais são formatos de uso social, como notícia, receita, carta, crônica, reportagem, artigo de opinião e bula.
+        </p>
+        <div className="rounded-xl bg-edtech-sky/10 p-4">
+          <p className="font-semibold text-edtech-primary">Dica de leitura</p>
+          <p className="mt-2 text-edtech-text">
+            Primeiro pergunte “para que este texto serve?”. Depois observe “como ele foi construído?”.
+          </p>
+        </div>
+      </div>
+    ),
+  },
+];
+
 // Narrativo
 export const narrativoCards: CardContent[] = [
   {

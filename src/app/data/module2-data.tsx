@@ -1,5 +1,149 @@
 import { CardContent } from '../components/SwipeCard';
 
+// Panorama das Figuras de Linguagem
+export const panoramaFigurasCards: CardContent[] = [
+  {
+    type: 'teoria',
+    title: 'O que são Figuras de Linguagem?',
+    content: (
+      <div>
+        <p className="mb-4">
+          Figuras de linguagem são palavras ou expressões usadas em sentido conotativo, ultrapassando o significado literal para criar expressividade, ritmo, humor, intensidade ou novas relações de sentido.
+        </p>
+        <p className="mb-4">
+          Quando dizemos que “Artur é um doce”, não afirmamos que ele tem gosto de açúcar, mas que é uma pessoa delicada. Esse deslocamento de sentido é o que torna a linguagem figurada tão importante na leitura.
+        </p>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl border border-edtech-border bg-white p-4">
+            <p className="font-semibold text-edtech-text">Palavras ou semântica</p>
+            <p className="mt-2 text-sm text-edtech-muted">Comparação, metáfora, metonímia, catacrese, perífrase e sinestesia.</p>
+          </div>
+          <div className="rounded-xl border border-edtech-border bg-white p-4">
+            <p className="font-semibold text-edtech-text">Pensamento</p>
+            <p className="mt-2 text-sm text-edtech-muted">Hipérbole, litotes, eufemismo, ironia, prosopopeia, antítese, paradoxo, apóstrofe e gradação.</p>
+          </div>
+          <div className="rounded-xl border border-edtech-border bg-white p-4">
+            <p className="font-semibold text-edtech-text">Sintaxe ou construção</p>
+            <p className="mt-2 text-sm text-edtech-muted">Elipse, zeugma, anáfora, pleonasmo, anacoluto, silepse, hipérbato e polissíndeto.</p>
+          </div>
+          <div className="rounded-xl border border-edtech-border bg-white p-4">
+            <p className="font-semibold text-edtech-text">Som ou harmonia</p>
+            <p className="mt-2 text-sm text-edtech-muted">Aliteração, assonância, onomatopeia e paronomásia.</p>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    type: 'exemplo',
+    title: 'Literal x Figurado',
+    content: (
+      <div>
+        <div className="rounded-xl bg-edtech-bg p-4">
+          <p className="mb-3"><strong>Sentido literal:</strong> “O doce está sobre a mesa.”</p>
+          <p><strong>Sentido figurado:</strong> “Aquela criança é um doce.”</p>
+        </div>
+        <p className="mt-4 text-sm text-edtech-muted">
+          No primeiro caso, “doce” nomeia um alimento. No segundo, atribui uma qualidade afetiva a uma pessoa.
+        </p>
+      </div>
+    ),
+  },
+  {
+    type: 'exercicio',
+    title: 'Reconhecendo Linguagem Figurada',
+    question: 'Qual alternativa usa linguagem figurada?',
+    options: [
+      'A xícara está sobre a mesa.',
+      'O aluno abriu o caderno.',
+      'A notícia caiu como uma bomba.',
+      'A porta da sala está fechada.',
+    ],
+    correctAnswer: 2,
+    content: 'A alternativa C usa linguagem figurada: “caiu como uma bomba” indica impacto ou surpresa, não uma bomba literal.',
+  },
+  {
+    type: 'feedback',
+    title: 'Resumo - Panorama das Figuras',
+    content: (
+      <div>
+        <p className="mb-4">
+          ✅ <strong>Agora você sabe o papel das figuras de linguagem.</strong>
+        </p>
+        <p>
+          Elas podem alterar sentidos, organizar a construção da frase, expressar pensamentos de modo mais intenso ou produzir efeitos sonoros.
+        </p>
+      </div>
+    ),
+  },
+];
+
+// Complementos de Sintaxe
+export const figurasSintaxeComplementaresCards: CardContent[] = [
+  {
+    type: 'teoria',
+    title: 'Outras Figuras de Construção',
+    content: (
+      <div>
+        <p className="mb-4">
+          Além de elipse, anáfora, pleonasmo e polissíndeto, algumas figuras atuam diretamente na organização sintática do enunciado.
+        </p>
+        <ul className="list-disc space-y-2 pl-6">
+          <li><strong>Anacoluto:</strong> quebra a ligação esperada entre o início da frase e a sequência de ideias.</li>
+          <li><strong>Silepse:</strong> faz a concordância com a ideia, e não apenas com a palavra escrita.</li>
+          <li><strong>Hipérbato:</strong> inverte a ordem direta da oração para produzir efeito expressivo.</li>
+          <li><strong>Zeugma:</strong> omite um termo já mencionado anteriormente, funcionando como um tipo de elipse.</li>
+        </ul>
+      </div>
+    ),
+  },
+  {
+    type: 'exemplo',
+    title: 'Exemplos de Anacoluto, Silepse e Hipérbato',
+    content: (
+      <div>
+        <div className="space-y-3 rounded-xl bg-edtech-bg p-4">
+          <p><strong>Anacoluto:</strong> “O automóvel, tudo são apenas bens materiais.”</p>
+          <p><strong>Silepse de gênero:</strong> “Sua excelência está disposto a tudo.”</p>
+          <p><strong>Silepse de número:</strong> “A turma estava desnorteada, já que lhes faltava liderança.”</p>
+          <p><strong>Silepse de pessoa:</strong> “As três estávamos apavoradas.”</p>
+          <p><strong>Hipérbato:</strong> “Por muitos brasileiros não é a literatura nacional valorizada.”</p>
+        </div>
+        <p className="mt-4 text-sm text-edtech-muted">
+          Em todos os casos, a forma da frase chama atenção porque se afasta da construção mais direta.
+        </p>
+      </div>
+    ),
+  },
+  {
+    type: 'exercicio',
+    title: 'Identificando Silepse',
+    question: 'Qual frase apresenta silepse, isto é, concordância com a ideia e não apenas com a palavra escrita?',
+    options: [
+      'O relógio soava duas horas.',
+      'As três estávamos apavoradas.',
+      'A porta estava aberta.',
+      'O povo sofre, chora e protesta.',
+    ],
+    correctAnswer: 1,
+    content: 'A alternativa B apresenta silepse de pessoa: o verbo “estávamos” inclui quem fala no grupo “as três”.',
+  },
+  {
+    type: 'feedback',
+    title: 'Resumo - Figuras de Construção',
+    content: (
+      <div>
+        <p className="mb-4">
+          ✅ <strong>Essas figuras ajudam a perceber efeitos na estrutura da frase.</strong>
+        </p>
+        <p>
+          Ao analisar um texto, observe quando a ordem, a concordância ou a ligação entre as partes parece inesperada. Muitas vezes, esse desvio é um recurso expressivo.
+        </p>
+      </div>
+    ),
+  },
+];
+
 // Metáfora
 export const metaforaCards: CardContent[] = [
   {

@@ -10,6 +10,7 @@ import {
   elipseCards,
   eufemismoCards,
   exerciciosModulo1Cards,
+  figurasSintaxeComplementaresCards,
   gradacaoCards,
   hiperboleCards,
   ironiaCards,
@@ -19,6 +20,7 @@ import {
   onomatopeiaCards,
   paradoxoCards,
   paronomasiaCards,
+  panoramaFigurasCards,
   perifrasedCards,
   personificacaoCards,
   pleonasmoCards,
@@ -32,6 +34,7 @@ const literaryTopicStyle = {
 };
 
 const topics = [
+  { id: "panorama-figuras", name: "Panorama das Figuras", icon: "🧭", cards: panoramaFigurasCards, softClass: "bg-edtech-sky/20 text-edtech-primary", borderClass: "border-edtech-sky/50" },
   { id: "exercicios-modulo1", name: "Revisão - Exercícios do Módulo 1", icon: "📝", cards: exerciciosModulo1Cards, softClass: "bg-edtech-sky/20 text-edtech-primary", borderClass: "border-edtech-sky/50" },
   { id: "metafora", name: "Metáfora", icon: "🌟", cards: metaforaCards, ...literaryTopicStyle },
   { id: "metonimia", name: "Metonímia", icon: "🔄", cards: metonimiaCards, ...literaryTopicStyle },
@@ -51,6 +54,7 @@ const topics = [
   { id: "elipse", name: "Elipse", icon: "⭕", cards: elipseCards, ...literaryTopicStyle },
   { id: "anafora", name: "Anáfora", icon: "🔁", cards: anaforaCards, ...literaryTopicStyle },
   { id: "pleonasmo", name: "Pleonasmo", icon: "➕", cards: pleonasmoCards, ...literaryTopicStyle },
+  { id: "figuras-sintaxe-complementares", name: "Complementos de Sintaxe", icon: "🧩", cards: figurasSintaxeComplementaresCards, ...literaryTopicStyle },
   { id: "polissindeto", name: "Polissíndeto", icon: "🔗", cards: polissindetoCards, ...literaryTopicStyle },
   { id: "aliteracao", name: "Aliteração", icon: "🎵", cards: aliteracaoCards, ...literaryTopicStyle },
   { id: "assonancia", name: "Assonância", icon: "🎶", cards: assonanciaCards, ...literaryTopicStyle },
