@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { supabase } from "../../lib/supabase";
-import type { AuthContextType, UserData } from "../types/auth";
+import type { AuthContextType, ExerciseAttemptInput, UserData } from "../types/auth";
 import * as authService from "../services/authService";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -193,6 +193,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [updateUser]
   );
 
+  const recordExerciseAttempt = useCallback(
+    async (attempt: ExerciseAttemptInput) => {
+      const currentUser = userRef.current;
+      if (!currentUser) return;
+
+      try {
+        await authService.ensureUserRow(currentUser.id, currentUser.email, currentUser.displayName);
+        const savedAttempt = await authService.recordExerciseAttempt(currentUser.id, attempt);
+
+        updateUser((previous) => {
+          if (!previous || previous.id !== currentUser.id) return previous;
+
+          return {
+            ...previous,
+            exerciseAttempts: [savedAttempt, ...previous.exerciseAttempts],
+          };
+        });
+      } catch (error) {
+        console.error("Erro ao registrar tentativa de exercicio:", error);
+      }
+    },
+    [updateUser]
+  );
+
   const value = useMemo(
     () => ({
       user,
@@ -201,9 +225,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signOut,
       setModuleProgress,
+      recordExerciseAttempt,
       updateLastVisited,
     }),
-    [user, ready, signIn, signUp, signOut, setModuleProgress, updateLastVisited]
+    [user, ready, signIn, signUp, signOut, setModuleProgress, recordExerciseAttempt, updateLastVisited]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

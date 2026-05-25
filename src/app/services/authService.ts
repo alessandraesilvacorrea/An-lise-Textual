@@ -1,6 +1,6 @@
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../../lib/supabase";
-import type { ProgressState, UserData } from "../types/auth";
+import type { ExerciseAttempt, ExerciseAttemptInput, ProgressState, UserData } from "../types/auth";
 
 type UserProfileRow = {
   email: string | null;
@@ -11,6 +11,22 @@ type ProgressRow = {
   module_id: string;
   completed_topics: string[] | null;
   last_visited: string | null;
+};
+
+type ExerciseAttemptRow = {
+  id: string;
+  module_id: string;
+  topic_id: string;
+  topic_name: string;
+  exercise_id: string;
+  exercise_title: string;
+  question: string;
+  selected_answer: number;
+  selected_option: string;
+  correct_answer: number;
+  correct_option: string;
+  is_correct: boolean;
+  attempted_at: string;
 };
 
 type UserDataFallback = {
@@ -34,6 +50,67 @@ function isMissingColumnError(error: unknown, columnName: string) {
     candidate.code === "PGRST204" ||
     (message.includes(column) && (message.includes("schema cache") || message.includes("does not exist")))
   );
+}
+
+function isMissingTableError(error: unknown, tableName: string) {
+  if (!error || typeof error !== "object") return false;
+
+  const candidate = error as { code?: string; message?: string };
+  const message = candidate.message?.toLowerCase() ?? "";
+  const table = tableName.toLowerCase();
+
+  return (
+    candidate.code === "42P01" ||
+    candidate.code === "PGRST205" ||
+    (message.includes(table) && (message.includes("schema cache") || message.includes("does not exist")))
+  );
+}
+
+function createLocalAttemptId() {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? `local-${crypto.randomUUID()}`
+    : `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function mapExerciseAttempt(row: ExerciseAttemptRow): ExerciseAttempt {
+  return {
+    id: row.id,
+    moduleId: row.module_id,
+    topicId: row.topic_id,
+    topicName: row.topic_name,
+    exerciseId: row.exercise_id,
+    exerciseTitle: row.exercise_title,
+    question: row.question,
+    selectedAnswer: row.selected_answer,
+    selectedOption: row.selected_option,
+    correctAnswer: row.correct_answer,
+    correctOption: row.correct_option,
+    isCorrect: row.is_correct,
+    attemptedAt: row.attempted_at,
+  };
+}
+
+async function getExerciseAttempts(userId: string): Promise<ExerciseAttempt[]> {
+  const { data, error } = await supabase
+    .from("user_exercise_attempts")
+    .select(
+      "id, module_id, topic_id, topic_name, exercise_id, exercise_title, question, selected_answer, selected_option, correct_answer, correct_option, is_correct, attempted_at"
+    )
+    .eq("user_id", userId)
+    .order("attempted_at", { ascending: false })
+    .returns<ExerciseAttemptRow[]>();
+
+  if (error) {
+    if (isMissingTableError(error, "user_exercise_attempts")) {
+      console.warn("user_exercise_attempts table is missing; exercise analytics are disabled until setup SQL is applied.");
+      return [];
+    }
+
+    console.error("Exercise attempts load error:", error);
+    return [];
+  }
+
+  return data.map(mapExerciseAttempt);
 }
 
 function getDisplayNameFromAuthUser(user: User | null | undefined) {
@@ -182,6 +259,7 @@ export async function getUserData(userId: string, fallback: UserDataFallback = {
     email,
     displayName: profile?.displayName ?? authDisplayName,
     progress,
+    exerciseAttempts: await getExerciseAttempts(userId),
     lastVisited,
   };
 }
@@ -261,4 +339,46 @@ export async function updateLastVisited(userId: string, path: string) {
   }
 
   if (error) throw error;
+}
+
+export async function recordExerciseAttempt(userId: string, attempt: ExerciseAttemptInput): Promise<ExerciseAttempt> {
+  const attemptedAt = new Date().toISOString();
+  const payload = {
+    user_id: userId,
+    module_id: attempt.moduleId,
+    topic_id: attempt.topicId,
+    topic_name: attempt.topicName,
+    exercise_id: attempt.exerciseId,
+    exercise_title: attempt.exerciseTitle,
+    question: attempt.question,
+    selected_answer: attempt.selectedAnswer,
+    selected_option: attempt.selectedOption,
+    correct_answer: attempt.correctAnswer,
+    correct_option: attempt.correctOption,
+    is_correct: attempt.isCorrect,
+    attempted_at: attemptedAt,
+  };
+
+  const { data, error } = await supabase
+    .from("user_exercise_attempts")
+    .insert(payload)
+    .select(
+      "id, module_id, topic_id, topic_name, exercise_id, exercise_title, question, selected_answer, selected_option, correct_answer, correct_option, is_correct, attempted_at"
+    )
+    .single<ExerciseAttemptRow>();
+
+  if (error) {
+    if (isMissingTableError(error, "user_exercise_attempts")) {
+      console.warn("user_exercise_attempts table is missing; keeping exercise attempt only in the current session.");
+      return {
+        id: createLocalAttemptId(),
+        ...attempt,
+        attemptedAt,
+      };
+    }
+
+    throw error;
+  }
+
+  return mapExerciseAttempt(data);
 }

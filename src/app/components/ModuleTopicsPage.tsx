@@ -38,6 +38,17 @@ function getCardsLabel(cards: CardContent[]) {
   return `${cards.length} ${cards.length === 1 ? "card" : "cards"}`;
 }
 
+function createExerciseId(moduleId: string, topicId: string, card: CardContent, cardIndex: number) {
+  const normalizedTitle = card.title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+  return `${moduleId}:${topicId}:${cardIndex}:${normalizedTitle || "exercicio"}`;
+}
+
 export function ModuleTopicsPage({
   moduleId,
   modulePath,
@@ -52,7 +63,7 @@ export function ModuleTopicsPage({
   getTopicHeading = (topic) => topic.name,
 }: ModuleTopicsPageProps) {
   const navigate = useNavigate();
-  const { user, setModuleProgress, updateLastVisited } = useAuth();
+  const { user, setModuleProgress, recordExerciseAttempt, updateLastVisited } = useAuth();
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const [completedTopics, setCompletedTopics] = useState<Set<string>>(() => new Set());
   const progressPercent = topics.length ? Math.round((completedTopics.size / topics.length) * 100) : 0;
@@ -125,7 +136,27 @@ export function ModuleTopicsPage({
             </h2>
           </section>
 
-          <SwipeCard cards={selectedTopic.cards} onComplete={() => handleTopicComplete(selectedTopic.id)} />
+          <SwipeCard
+            cards={selectedTopic.cards}
+            onComplete={() => handleTopicComplete(selectedTopic.id)}
+            onExerciseAnswer={({ card, cardIndex, selectedAnswer, isCorrect }) => {
+              const correctAnswer = typeof card.correctAnswer === "number" ? card.correctAnswer : -1;
+
+              void recordExerciseAttempt({
+                moduleId,
+                topicId: selectedTopic.id,
+                topicName: selectedHeading,
+                exerciseId: createExerciseId(moduleId, selectedTopic.id, card, cardIndex),
+                exerciseTitle: card.title,
+                question: card.question ?? card.title,
+                selectedAnswer,
+                selectedOption: card.options?.[selectedAnswer] ?? "",
+                correctAnswer,
+                correctOption: correctAnswer >= 0 ? card.options?.[correctAnswer] ?? "" : "",
+                isCorrect,
+              });
+            }}
+          />
         </div>
       </ModuleLayout>
     );

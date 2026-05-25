@@ -13,6 +13,12 @@ export interface CardContent {
 interface SwipeCardProps {
   cards: CardContent[];
   onComplete?: () => void | Promise<void>;
+  onExerciseAnswer?: (payload: {
+    card: CardContent;
+    cardIndex: number;
+    selectedAnswer: number;
+    isCorrect: boolean;
+  }) => void | Promise<void>;
 }
 
 function getCardMeta(type: CardContent["type"]) {
@@ -44,7 +50,7 @@ function getCardMeta(type: CardContent["type"]) {
   }
 }
 
-export function SwipeCard({ cards, onComplete }: SwipeCardProps) {
+export function SwipeCard({ cards, onComplete, onExerciseAnswer }: SwipeCardProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -97,8 +103,21 @@ export function SwipeCard({ cards, onComplete }: SwipeCardProps) {
 
   const handleAnswerSelect = (index: number) => {
     if (showFeedback) return;
+    const answerIsCorrect = index === currentCard.correctAnswer;
+
     setSelectedAnswer(index);
     setShowFeedback(true);
+
+    void Promise.resolve(
+      onExerciseAnswer?.({
+        card: currentCard,
+        cardIndex: currentIndex,
+        selectedAnswer: index,
+        isCorrect: answerIsCorrect,
+      })
+    ).catch((error) => {
+      console.error("Erro ao registrar resposta do exercicio:", error);
+    });
   };
 
   const handleOptionKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
