@@ -1,18 +1,32 @@
+import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter, Navigate, useLocation } from "react-router";
-import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Module1 from "./pages/Module1";
-import Module2 from "./pages/Module2";
-import Module3 from "./pages/Module3";
-import Module4 from "./pages/Module4";
 import { useAuth } from "./auth";
 
-function RequireAuth({ children }: { children: React.ReactNode }) {
+const Home = lazy(() => import("./pages/Home"));
+const Module1 = lazy(() => import("./pages/Module1"));
+const Module2 = lazy(() => import("./pages/Module2"));
+const Module3 = lazy(() => import("./pages/Module3"));
+const Module4 = lazy(() => import("./pages/Module4"));
+
+function PageLoader() {
+  return (
+    <div role="status" aria-live="polite" className="flex min-h-screen items-center justify-center bg-edtech-bg px-4 text-center text-edtech-muted">
+      Carregando...
+    </div>
+  );
+}
+
+function LazyPage({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<PageLoader />}>{children}</Suspense>;
+}
+
+function RequireAuth({ children }: { children: ReactNode }) {
   const auth = useAuth();
   const location = useLocation();
 
   if (!auth.ready) {
-    return null;
+    return <PageLoader />;
   }
 
   if (!auth.user) {
@@ -34,41 +48,51 @@ export const router = createBrowserRouter([
   {
     path: "/home",
     element: (
-      <RequireAuth>
-        <Home />
-      </RequireAuth>
+      <LazyPage>
+        <RequireAuth>
+          <Home />
+        </RequireAuth>
+      </LazyPage>
     ),
   },
   {
     path: "/modulo-1",
     element: (
-      <RequireAuth>
-        <Module1 />
-      </RequireAuth>
+      <LazyPage>
+        <RequireAuth>
+          <Module1 />
+        </RequireAuth>
+      </LazyPage>
     ),
   },
   {
     path: "/modulo-2",
     element: (
-      <RequireAuth>
-        <Module2 />
-      </RequireAuth>
+      <LazyPage>
+        <RequireAuth>
+          <Module2 />
+        </RequireAuth>
+      </LazyPage>
     ),
   },
   {
     path: "/modulo-3",
     element: (
-      <RequireAuth>
-        <Module3 />
-      </RequireAuth>
+      <LazyPage>
+        <RequireAuth>
+          <Module3 />
+        </RequireAuth>
+      </LazyPage>
     ),
   },
   {
     path: "/modulo-4",
     element: (
-      <RequireAuth>
-        <Module4 />
-      </RequireAuth>
+      <LazyPage>
+        <RequireAuth>
+          <Module4 />
+        </RequireAuth>
+      </LazyPage>
     ),
   },
 ]);

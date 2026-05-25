@@ -39,6 +39,21 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --edtech-primary: #3b4cca;
+  --edtech-sky: #6fa8ff;
+  --edtech-mint: #7fd1ae;
+  --edtech-amber: #f5b971;
+  --edtech-bg: #f7f9fc;
+  --edtech-surface: #ffffff;
+  --edtech-text: #1f2937;
+  --edtech-muted: #6b7280;
+  --edtech-border: #dfe6f2;
+  --category-narrativo: #b8a1ff;
+  --category-argumentativo: #ff8a80;
+  --category-cientifico: #4db6ac;
+  --category-jornalistico: #64b5f6;
+  --category-literario: #f48fb1;
+  --category-instrucional: #ffb74d;
 }
 
 .dark {
@@ -117,6 +132,21 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-edtech-primary: var(--edtech-primary);
+  --color-edtech-sky: var(--edtech-sky);
+  --color-edtech-mint: var(--edtech-mint);
+  --color-edtech-amber: var(--edtech-amber);
+  --color-edtech-bg: var(--edtech-bg);
+  --color-edtech-surface: var(--edtech-surface);
+  --color-edtech-text: var(--edtech-text);
+  --color-edtech-muted: var(--edtech-muted);
+  --color-edtech-border: var(--edtech-border);
+  --color-category-narrativo: var(--category-narrativo);
+  --color-category-argumentativo: var(--category-argumentativo);
+  --color-category-cientifico: var(--category-cientifico);
+  --color-category-jornalistico: var(--category-jornalistico);
+  --color-category-literario: var(--category-literario);
+  --color-category-instrucional: var(--category-instrucional);
 }
 
 @layer base {
@@ -125,7 +155,23 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-edtech-bg text-edtech-text;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--edtech-sky);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   /**
