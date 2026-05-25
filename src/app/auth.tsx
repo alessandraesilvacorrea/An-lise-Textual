@@ -14,8 +14,8 @@ export type UserData = {
 type AuthContextType = {
   user: UserData | null;
   ready: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName?: string) => Promise<void>;
+  // email and optional displayName (used when creating a new account)
+  signIn: (email: string, displayName?: string) => Promise<void>;
   signOut: () => Promise<void>;
   setModuleProgress: (moduleId: string, topicIds: string[]) => Promise<void>;
   updateLastVisited: (path: string) => Promise<void>;
@@ -23,25 +23,51 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// profiles are created when a user signs up via Supabase Auth; we no longer create users directly.
-
-async function getUserData(userId: string): Promise<UserData | null> {
-  // Buscar profile
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, display_name')
-    .eq('id', userId)
+async function getOrCreateUser(email: string, displayName?: string): Promise<string> {
+  // Verificar se usuário existe
+  const { data: existingUser } = await supabase
+    .from("users")
+    .select("id, display_name")
+    .eq("email", email)
     .single();
 
-  if (profileError) {
-    console.warn('Profile not found:', profileError);
+  if (existingUser) {
+    // se fornecido displayName diferente, atualiza
+    if (displayName && existingUser.display_name !== displayName) {
+      await supabase.from('users').update({ display_name: displayName }).eq('id', existingUser.id);
+    }
+    return existingUser.id;
   }
+
+  // Criar novo usuário
+  const insertPayload: any = { email };
+  if (displayName) insertPayload.display_name = displayName;
+
+  const { data: newUser, error } = await supabase
+    .from("users")
+    .insert(insertPayload)
+    .select("id")
+    .single();
+
+  if (error) throw error;
+  return newUser.id;
+}
+
+async function getUserData(userId: string): Promise<UserData | null> {
+  // Buscar usuário
+  const { data: user, error: userError } = await supabase
+    .from("users")
+    .select("id, email, display_name")
+    .eq("id", userId)
+    .single();
+
+  if (userError || !user) return null;
 
   // Buscar progresso
   const { data: progressRecords } = await supabase
-    .from('user_progress')
-    .select('module_id, completed_topics, last_visited')
-    .eq('user_id', userId);
+    .from("user_progress")
+    .select("module_id, completed_topics, last_visited")
+    .eq("user_id", userId);
 
   const progress: ProgressState = {};
   let lastVisited: string | undefined;
@@ -53,14 +79,10 @@ async function getUserData(userId: string): Promise<UserData | null> {
     });
   }
 
-  // Obter email do usuário autenticado (se disponível)
-  const { data: authData } = await supabase.auth.getUser();
-  const email = (authData as any)?.user?.email ?? undefined;
-
   return {
-    id: userId,
-    email: email ?? '',
-    displayName: (profile as any)?.display_name ?? undefined,
+    id: user.id,
+    email: user.email,
+    displayName: (user as any).display_name ?? undefined,
     progress,
     lastVisited,
   };
@@ -69,6 +91,16 @@ async function getUserData(userId: string): Promise<UserData | null> {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
   const [ready, setReady] = useState(false);
+
+  // Carregar usuário do localStorage na inicialização
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("textlab-user-id");
+    if (storedUserId) {
+      loadUser(storedUserId);
+    } else {
+      setReady(true);
+    }
+  }, []);
 
   const loadUser = async (userId: string) => {
     try {
@@ -81,78 +113,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Inicializa sessão e escuta mudanças de autenticação
-  useEffect(() => {
-    let mounted = true;
-
-    const init = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        const session = (data as any)?.session;
-        if (session?.user?.id) {
-          await loadUser(session.user.id);
-        } else {
-          setReady(true);
-        }
-      } catch (err) {
-        console.error('Auth init error', err);
-        setReady(true);
-      }
-    };
-
-    init();
-
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!mounted) return;
-      if (session?.user?.id) {
-        loadUser(session.user.id);
-      } else {
-        setUser(null);
-        setReady(true);
-      }
-    });
-
-    return () => {
-      mounted = false;
-      sub?.subscription?.unsubscribe?.();
-    };
-  }, []);
-
-  const signIn = async (email: string, password?: string) => {
+  const signIn = async (email: string) => {
     try {
-      if (!password) throw new Error('Password required');
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      const userId = (data.user as any).id;
+      const userId = await getOrCreateUser(email.trim().toLowerCase());
+      localStorage.setItem("textlab-user-id", userId);
       await loadUser(userId);
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error("Sign in error:", error);
       throw error;
     }
   };
 
-  const signUp = async (email: string, password: string, displayName?: string) => {
+  // novo método que aceita displayName para criação de conta
+  const signInWithName = async (email: string, displayName?: string) => {
     try {
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
-      const createdUser = (data.user as any) || (data as any)?.user;
-      if (createdUser?.id) {
-        // criar profile ligado ao auth uid
-        await supabase.from('profiles').upsert({ id: createdUser.id, display_name: displayName });
-        await loadUser(createdUser.id);
-      } else {
-        // signUp requires email confirm; inform caller
-        throw new Error('Confirme seu email. Verifique a caixa de entrada.');
-      }
+      const userId = await getOrCreateUser(email.trim().toLowerCase(), displayName?.trim() || undefined);
+      localStorage.setItem("textlab-user-id", userId);
+      await loadUser(userId);
     } catch (error) {
-      console.error('Sign up error:', error);
+      console.error("Sign in error:", error);
       throw error;
     }
   };
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      localStorage.removeItem("textlab-user-id");
       setUser(null);
     } catch (error) {
       console.error("Sign out error:", error);
@@ -226,7 +212,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, ready, signIn, signUp, signOut, setModuleProgress, updateLastVisited }}>
+    <AuthContext.Provider value={{ user, ready, signIn: signInWithName as any, signOut, setModuleProgress, updateLastVisited }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,7 +4,7 @@ import { useAuth } from "../auth";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { user, ready, signIn, signUp } = useAuth();
+  const { user, ready, signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [createMode, setCreateMode] = useState(false);
@@ -21,15 +21,14 @@ export default function Login() {
     event.preventDefault();
     try {
       if (createMode) {
-        await signUp(email, password, displayName);
+        await signIn(email, displayName);
       } else {
-        await signIn(email, password);
+        await signIn(email);
       }
       setSubmitted(true);
     } catch (err) {
       console.error('Login error', err);
-      const message = (err as any)?.message || String(err);
-      alert(`Erro ao entrar: ${message}`);
+      alert('Erro ao entrar. Tente novamente.');
     }
   };
 
