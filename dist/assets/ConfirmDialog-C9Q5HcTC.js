@@ -1,0 +1,16 @@
+import{i as a,r,j as e,T as u}from"./index-BOJuSKc6.js";/**
+ * @license lucide-react v0.487.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const y=[["circle",{cx:"12",cy:"16",r:"1",key:"1au0dj"}],["rect",{x:"3",y:"10",width:"18",height:"12",rx:"2",key:"6s8ecr"}],["path",{d:"M7 10V7a5 5 0 0 1 10 0v3",key:"1pqi11"}]],k=a("lock-keyhole",y);/**
+ * @license lucide-react v0.487.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const p=[["path",{d:"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4",key:"1uf3rs"}],["polyline",{points:"16 17 21 12 16 7",key:"1gabdz"}],["line",{x1:"21",x2:"9",y1:"12",y2:"12",key:"1uyos4"}]],w=a("log-out",p);/**
+ * @license lucide-react v0.487.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const f=[["path",{d:"M18 6 6 18",key:"1bl5f8"}],["path",{d:"m6 6 12 12",key:"d8bk6v"}]],j=a("x",f);function v({open:d,title:n,description:o,confirmLabel:h,cancelLabel:x="Cancelar",isLoading:t=!1,onConfirm:b,onClose:s}){const i=r.useId(),l=r.useId();return r.useEffect(()=>{if(!d)return;const c=m=>{m.key==="Escape"&&!t&&s()};return window.addEventListener("keydown",c),()=>window.removeEventListener("keydown",c)},[t,s,d]),d?e.jsx("div",{className:"fixed inset-0 z-50 flex items-center justify-center bg-edtech-text/40 px-4 py-6 backdrop-blur-sm",children:e.jsxs("section",{role:"dialog","aria-modal":"true","aria-labelledby":i,"aria-describedby":l,className:"w-full max-w-md rounded-lg border border-edtech-border bg-white p-5 shadow-[0_24px_70px_rgba(31,41,55,0.22)]",children:[e.jsxs("div",{className:"flex items-start justify-between gap-4",children:[e.jsxs("div",{className:"flex items-start gap-3",children:[e.jsx("div",{className:"flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-edtech-amber/20 text-edtech-text",children:e.jsx(u,{className:"h-5 w-5","aria-hidden":"true"})}),e.jsxs("div",{children:[e.jsx("h2",{id:i,className:"text-lg font-semibold leading-tight text-edtech-text",children:n}),e.jsx("p",{id:l,className:"mt-2 text-sm leading-6 text-edtech-muted",children:o})]})]}),e.jsx("button",{type:"button",onClick:s,disabled:t,"aria-label":"Fechar janela de confirmação",className:"rounded-lg p-2 text-edtech-muted transition hover:bg-edtech-bg hover:text-edtech-text disabled:cursor-not-allowed disabled:opacity-50",children:e.jsx(j,{className:"h-4 w-4","aria-hidden":"true"})})]}),e.jsxs("div",{className:"mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",children:[e.jsx("button",{type:"button",onClick:s,disabled:t,className:"inline-flex items-center justify-center rounded-lg border border-edtech-border bg-white px-4 py-2.5 text-sm font-semibold text-edtech-text transition hover:border-edtech-sky hover:bg-edtech-sky/10 disabled:cursor-not-allowed disabled:opacity-50",children:x}),e.jsx("button",{type:"button",onClick:b,disabled:t,"aria-busy":t,className:"inline-flex items-center justify-center rounded-lg bg-edtech-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-edtech-sky disabled:cursor-not-allowed disabled:opacity-60",children:t?"Saindo...":h})]})]})}):null}export{v as C,w as L,k as a};

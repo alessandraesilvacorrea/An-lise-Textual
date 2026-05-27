@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { supabase } from "../../lib/supabase";
-import type { AuthContextType, ExerciseAttemptInput, UserData } from "../types/auth";
+import type { AccountEmailChangeResult, AuthContextType, ExerciseAttemptInput, UserData } from "../types/auth";
 import * as authService from "../services/authService";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -131,13 +131,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (!session) {
-        throw new Error(
-          "Conta criada. Verifique seu e-mail para confirmar o cadastro e depois entre com sua senha."
-        );
+        return {
+          status: "confirmation-required" as const,
+          email: normalizedEmail,
+        };
       }
 
-      await authService.upsertProfile(createdUser.id, normalizedEmail, trimmedName);
-      await loadUser(createdUser.id, { email: normalizedEmail, displayName: trimmedName });
+      try {
+        await authService.upsertProfile(createdUser.id, normalizedEmail, trimmedName);
+      } catch (error) {
+        console.warn("Profile sync after sign-up failed; continuing with auth session.", error);
+      }
+
+      const userData = await loadUser(createdUser.id, { email: normalizedEmail, displayName: trimmedName });
+
+      if (!userData) {
+        throw new Error("Conta criada, mas não foi possível carregar seu perfil. Atualize a página e tente entrar novamente.");
+      }
+
+      return {
+        status: "signed-in" as const,
+        email: normalizedEmail,
+      };
     },
     [loadUser]
   );
@@ -149,6 +164,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       replaceUser(null);
     }
   }, [replaceUser]);
+
+  const updateDisplayName = useCallback(
+    async (displayName: string) => {
+      const currentUser = userRef.current;
+
+      if (!currentUser) {
+        throw new Error("Entre na sua conta para alterar o nome de exibição.");
+      }
+
+      const trimmedName = displayName.trim();
+      await authService.updateUserDisplayName(currentUser.id, currentUser.email, trimmedName);
+
+      updateUser((previous) => {
+        if (!previous || previous.id !== currentUser.id) return previous;
+
+        return {
+          ...previous,
+          displayName: trimmedName,
+        };
+      });
+    },
+    [updateUser]
+  );
+
+  const requestEmailChange = useCallback(async (email: string): Promise<AccountEmailChangeResult> => {
+    const currentUser = userRef.current;
+
+    if (!currentUser) {
+      throw new Error("Entre na sua conta para solicitar a troca de e-mail.");
+    }
+
+    return authService.requestEmailChange(email);
+  }, []);
+
+  const updatePassword = useCallback(async (password: string) => {
+    const currentUser = userRef.current;
+
+    if (!currentUser) {
+      throw new Error("Entre na sua conta para alterar a senha.");
+    }
+
+    await authService.updateAccountPassword(password);
+  }, []);
 
   const setModuleProgress = useCallback(
     async (moduleId: string, topicIds: string[]) => {
@@ -227,8 +285,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setModuleProgress,
       recordExerciseAttempt,
       updateLastVisited,
+      updateDisplayName,
+      requestEmailChange,
+      updatePassword,
     }),
-    [user, ready, signIn, signUp, signOut, setModuleProgress, recordExerciseAttempt, updateLastVisited]
+    [
+      user,
+      ready,
+      signIn,
+      signUp,
+      signOut,
+      setModuleProgress,
+      recordExerciseAttempt,
+      updateLastVisited,
+      updateDisplayName,
+      requestEmailChange,
+      updatePassword,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

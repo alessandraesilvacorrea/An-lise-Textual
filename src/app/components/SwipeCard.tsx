@@ -63,7 +63,7 @@ export function SwipeCard({ cards, onComplete, onExerciseAnswer }: SwipeCardProp
 
   if (!currentCard) {
     return (
-      <div className="mx-auto w-full max-w-3xl rounded-2xl border border-edtech-border bg-white p-8 text-center text-edtech-muted shadow-sm">
+      <div className="mx-auto w-full max-w-3xl rounded-lg border border-edtech-border bg-white p-8 text-center text-edtech-muted shadow-sm">
         Nenhum card disponível para este tópico.
       </div>
     );
@@ -141,7 +141,7 @@ export function SwipeCard({ cards, onComplete, onExerciseAnswer }: SwipeCardProp
 
   return (
     <div className="mx-auto w-full max-w-3xl">
-      <div className="mb-4 rounded-2xl border border-edtech-border bg-white p-4 shadow-sm">
+      <div className="mb-4 rounded-lg border border-edtech-border bg-white p-4 shadow-sm">
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm font-medium text-edtech-muted">
             Card {currentIndex + 1} de {cards.length}
@@ -171,9 +171,16 @@ export function SwipeCard({ cards, onComplete, onExerciseAnswer }: SwipeCardProp
         </div>
       </div>
 
-      <article aria-labelledby={titleId} className="flex min-h-[440px] flex-col rounded-2xl border border-edtech-border bg-white p-6 shadow-sm md:p-8">
+      <article aria-labelledby={titleId} className="flex min-h-[440px] flex-col rounded-lg border border-edtech-border bg-white p-6 shadow-sm md:p-8">
         <header className="mb-6 border-b border-edtech-border pb-5">
-          <h2 id={titleId} className="text-2xl font-semibold leading-tight text-edtech-text">{currentCard.title}</h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <h2 id={titleId} className="text-2xl font-semibold leading-tight text-edtech-text">{currentCard.title}</h2>
+            {needsAnswer ? (
+              <span className="w-fit rounded-full bg-edtech-amber/20 px-3 py-1 text-xs font-semibold text-edtech-text">
+                Responda para avançar
+              </span>
+            ) : null}
+          </div>
         </header>
 
         <div className="flex-1">
@@ -204,18 +211,24 @@ export function SwipeCard({ cards, onComplete, onExerciseAnswer }: SwipeCardProp
                       onClick={() => handleAnswerSelect(index)}
                       onKeyDown={(event) => handleOptionKeyDown(event, index)}
                       disabled={showFeedback}
-                      className={`flex w-full items-start gap-3 rounded-xl border p-4 text-left text-sm leading-6 transition ${stateClass} ${
+                      className={`flex w-full items-start gap-3 rounded-lg border p-4 text-left text-sm leading-6 transition ${stateClass} ${
                         showFeedback ? "cursor-not-allowed" : "cursor-pointer"
                       }`}
                     >
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-edtech-bg text-xs font-semibold text-edtech-primary" aria-hidden="true">
                         {String.fromCharCode(65 + index)}
                       </span>
-                      <span>
+                      <span className="min-w-0 flex-1">
                         {option}
                         {showFeedback && optionIsCorrect ? <span className="sr-only"> Resposta correta.</span> : null}
                         {showFeedback && isSelected ? <span className="sr-only"> Sua resposta.</span> : null}
                       </span>
+                      {showFeedback && optionIsCorrect ? (
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-edtech-mint" aria-hidden="true" />
+                      ) : null}
+                      {showFeedback && isSelected && !isCorrect ? (
+                        <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-category-argumentativo" aria-hidden="true" />
+                      ) : null}
                     </button>
                   );
                 })}
@@ -226,7 +239,7 @@ export function SwipeCard({ cards, onComplete, onExerciseAnswer }: SwipeCardProp
                   id={feedbackId}
                   role="status"
                   aria-live="polite"
-                  className={`mt-6 rounded-xl border p-4 ${
+                  className={`mt-6 rounded-lg border p-4 ${
                     isCorrect ? "border-edtech-mint bg-edtech-mint/20" : "border-category-argumentativo bg-category-argumentativo/10"
                   }`}
                 >
@@ -255,7 +268,7 @@ export function SwipeCard({ cards, onComplete, onExerciseAnswer }: SwipeCardProp
             onClick={handlePrevious}
             disabled={currentIndex === 0 || isCompleting}
             aria-label="Voltar para o card anterior"
-            className="inline-flex items-center gap-2 rounded-xl border border-edtech-border bg-white px-4 py-2 text-sm font-semibold text-edtech-text transition hover:border-edtech-sky hover:bg-edtech-sky/10 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-lg border border-edtech-border bg-white px-4 py-2 text-sm font-semibold text-edtech-text transition hover:border-edtech-sky hover:bg-edtech-sky/10 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             Anterior
@@ -267,7 +280,7 @@ export function SwipeCard({ cards, onComplete, onExerciseAnswer }: SwipeCardProp
             disabled={needsAnswer || isCompleting}
             aria-label={currentIndex === cards.length - 1 ? "Concluir tópico" : "Ir para o próximo card"}
             aria-busy={isCompleting}
-            className="inline-flex items-center gap-2 rounded-xl bg-edtech-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-edtech-sky disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-lg bg-edtech-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-edtech-sky disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isCompleting ? "Salvando..." : currentIndex === cards.length - 1 ? "Concluir" : "Próximo"}
             <ChevronRight className="h-4 w-4" aria-hidden="true" />

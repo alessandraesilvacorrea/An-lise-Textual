@@ -6,8 +6,8 @@ export async function initializeDatabase() {
     const { error: usersError } = await supabase.rpc("exec", {
       query: `
         CREATE TABLE IF NOT EXISTS users (
-          id TEXT PRIMARY KEY,
-          email TEXT UNIQUE NOT NULL,
+          id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+          email TEXT NOT NULL,
           display_name TEXT,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
@@ -23,7 +23,7 @@ export async function initializeDatabase() {
       query: `
         CREATE TABLE IF NOT EXISTS user_progress (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+          user_id UUID REFERENCES users(id) ON DELETE CASCADE,
           module_id TEXT NOT NULL,
           completed_topics TEXT[] DEFAULT '{}',
           last_visited TEXT,
